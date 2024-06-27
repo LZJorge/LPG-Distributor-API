@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "app"
+version = "0.1.0"
+description = ""
+authors = ["Jorge Landaeta <dev.jorge2003@hotmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.111.0"
+pylint = "^3.2.3"
+black = "^24.4.2"
+sqlalchemy = "^2.0.31"
+pydantic-settings = "^2.3.3"
+psycopg = "^3.1.19"
+alembic = "^1.13.1"
+pre-commit = "^3.7.1"
+
+[tool.poetry.scripts]
+start = "app.main:start"
+
+
+[tool.pylint."messages control"]
+allowed-redefined-builtins = [ 'id' ]
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
