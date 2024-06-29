@@ -3,6 +3,7 @@ from app.core.infrastructure.router import BaseRouter
 
 # Requests
 from app.modules.user.application.request.create import CreateUserRequest
+from app.modules.user.application.request.list_params import ListUsersParams
 
 # Responses
 from app.modules.user.application.response.create import CreateUserResponse
@@ -25,22 +26,12 @@ class UserRouter(BaseRouter):
 
         @self._router.get("/", response_model=GetManyUsersResponse)
         async def get_all(
-            # Query Params
-            first_name: str = None,
-            last_name: str = None,
-            phone: str = None,
+            params: ListUsersParams = Depends(),
             service: UserService = Depends(get_user_service),
         ) -> GetManyUsersResponse:
-            query_params: dict = {}
-
-            if first_name:
-                query_params["first_name"] = first_name
-
-            if last_name:
-                query_params["last_name"] = last_name
-
-            if phone:
-                query_params["phone"] = phone
+            query_params: dict = {
+                key: value for key, value in params if value is not None
+            }
 
             return await service.get_many(**query_params)
 
