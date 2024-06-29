@@ -26,7 +26,8 @@ class GenericSQLRepository(GenericRepository[T]):
         for column, value in filters.items():
             if not hasattr(self._model_cls, column):
                 raise ValueError(f"Invalid column name {column}")
-            where_clauses.append(getattr(self._model_cls, column) == value)
+            
+            where_clauses.append(getattr(self._model_cls, column).ilike(f"%{value}%"))
 
         if len(where_clauses) > 0:
             stmt = stmt.where(*where_clauses)
