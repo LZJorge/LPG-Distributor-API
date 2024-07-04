@@ -13,7 +13,9 @@ from app.modules.user.application.request.create import CreateUserRequest
 from app.modules.user.application.response.create import CreateUserResponse
 from app.modules.user.application.response.get_one import GetOneUserResponse
 from app.modules.user.application.response.get_many import GetManyUsersResponse
+from app.modules.user.application.response.update import UpdateUserResponse
 
+# Entities
 from app.modules.user.domain.entity import User
 
 
@@ -30,24 +32,36 @@ class UserService:
         user = User(
             id=ID.generate(),
             dni=dto.dni,
-            firstname=dto.firstname,
-            lastname=dto.lastname,
+            first_name=dto.first_name,
+            last_name=dto.last_name,
             email=dto.email,
             phone=dto.phone,
+            address=dto.address,
         )
 
-        async with self._transaction as t:
-            t.user.add(user)
-
-            await t.commit()
+        try:
+            async with self._transaction() as t:
+                u = await t.user.add(self.__mapper.to_model(user))
+        except Exception as e:
+            return CreateUserResponse(
+                status_code=500, success=False, message=str(e), content=None
+            )
 
         return CreateUserResponse(
-            status_code=201, success=True, message="User created", content=user
+            status_code=201,
+            success=True,
+            message="User created",
+            content=self.__mapper.to_entity(u),
         )
 
     async def get_one(self, id: str) -> GetOneUserResponse:
-        async with self._transaction as t:
-            user = await t.user.get_one(id)
+        async with self._transaction() as t:
+            user = await t.user.get(id)
+
+        if not user:
+            return GetOneUserResponse(
+                status_code=404, success=False, message="User not found", content=None
+            )
 
         return GetOneUserResponse(
             status_code=200,
@@ -56,7 +70,7 @@ class UserService:
             content=self.__mapper.to_entity(user),
         )
 
-    async def get_by_dni(self, dni: str) -> GetOneUserResponse:
+    async def get_one_by_dni(self, dni: str) -> GetOneUserResponse:
         async with self._transaction() as t:
             user = await t.user.get_by_dni(dni)
 
@@ -86,15 +100,28 @@ class UserService:
         )
 
     async def update(self, dni: str, dto: CreateUserRequest) -> User:
-        async with self._transaction as t:
-            user = await t.user.get_one(dni)
+        async with self._transaction() as t:
+            user = await t.user.get(dni)
+
+            if not user:
+                return UpdateUserResponse(
+                    status_code=404,
+                    success=False,
+                    message="User not found",
+                    content=None,
+                )
 
             for k, v in vars(dto).items():
                 setattr(user, k, v)
 
-            t.user.update(user)
+            await t.user.update(user)
 
-        return user
+        return UpdateUserResponse(
+            status_code=200,
+            success=True,
+            message="User updated",
+            content=self.__mapper.to_entity(user),
+        )
 
 
 def get_user_service(

@@ -26,7 +26,7 @@ class GenericSQLRepository(GenericRepository[T]):
         for column, value in filters.items():
             if not hasattr(self._model_cls, column):
                 raise ValueError(f"Invalid column name {column}")
-            
+
             where_clauses.append(getattr(self._model_cls, column).ilike(f"%{value}%"))
 
         if len(where_clauses) > 0:
@@ -38,7 +38,6 @@ class GenericSQLRepository(GenericRepository[T]):
     async def add(self, record: T) -> T:
         self._session.add(record)
         await self._session.flush()
-        await self._session.refresh(record)
         return record
 
     async def get(self, id_: str) -> T:
@@ -54,5 +53,4 @@ class GenericSQLRepository(GenericRepository[T]):
     async def update(self, record: T) -> T:
         self._session.add(record)
         await self._session.flush()
-        await self._session.refresh(record)
         return record

@@ -20,8 +20,6 @@ class DNI(str):
 
     def __new__(cls, value: str) -> str:
         match = re.match(DNI_RegEx, value)
-        print("#".center(100, "#"))
-        print(value, match.span())
 
         if not match:
             raise InvalidDNIException(value)

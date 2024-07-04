@@ -1,4 +1,5 @@
-from fastapi import Depends, APIRouter
+from uuid import UUID
+from fastapi import Depends, APIRouter, Response
 from app.core.infrastructure.router import BaseRouter
 
 # Requests
@@ -9,9 +10,11 @@ from app.modules.user.application.request.list_params import ListUsersParams
 from app.modules.user.application.response.create import CreateUserResponse
 from app.modules.user.application.response.get_one import GetOneUserResponse
 from app.modules.user.application.response.get_many import GetManyUsersResponse
+from app.modules.user.application.response.update import UpdateUserResponse
 
 # Dependencies
 from app.modules.user.infrastructure.service import UserService, get_user_service
+from app.utils.handle_service_result import handle_service_result
 
 
 class UserRouter(BaseRouter):
@@ -24,42 +27,72 @@ class UserRouter(BaseRouter):
 
     def _register_routes(self) -> None:
 
-        @self._router.get("/", response_model=GetManyUsersResponse)
+        @self._router.get("/", response_model=GetManyUsersResponse, status_code=200)
         async def get_all(
             params: ListUsersParams = Depends(),
             service: UserService = Depends(get_user_service),
+            response: Response = Response(),
         ) -> GetManyUsersResponse:
             query_params: dict = {
                 key: value for key, value in params if value is not None
             }
 
-            return await service.get_many(**query_params)
+            result = await service.get_many(**query_params)
 
-        @self._router.get("/{id_}", response_model=GetOneUserResponse)
+            handle_service_result(result, response)
+
+            return result
+
+        @self._router.get("/{id_}", response_model=GetOneUserResponse, status_code=200)
         async def get_by_id(
-            id_: str, service: UserService = Depends(get_user_service)
+            id_: UUID,
+            service: UserService = Depends(get_user_service),
+            response: Response = Response(),
         ) -> GetOneUserResponse:
-            return await service.get_by_id(id_)
+            result = await service.get_one(id_)
 
-        @self._router.get("/dni/{dni}", response_model=GetOneUserResponse)
+            handle_service_result(result, response)
+
+            return result
+
+        @self._router.get(
+            "/dni/{dni}", response_model=GetOneUserResponse, status_code=200
+        )
         async def get_by_dni(
-            dni: str, service: UserService = Depends(get_user_service)
+            dni: str,
+            service: UserService = Depends(get_user_service),
+            response: Response = Response(),
         ) -> GetOneUserResponse:
-            return await service.get_by_dni(dni)
+            result = await service.get_one_by_dni(dni)
 
-        @self._router.put("/{id_}", response_model=CreateUserResponse)
+            handle_service_result(result, response)
+
+            return result
+
+        @self._router.put("/{id_}", response_model=UpdateUserResponse, status_code=200)
         async def update(
-            id_: str,
+            id_: UUID,
             body: CreateUserRequest,
             service: UserService = Depends(get_user_service),
-        ) -> GetOneUserResponse:
-            return await service.update(id_, body)
+            response: Response = Response(),
+        ) -> UpdateUserResponse:
+            result = await service.update(id_, body)
+
+            handle_service_result(result, response)
+
+            return result
 
         @self._router.post("/", response_model=CreateUserResponse, status_code=201)
         async def create(
-            body: CreateUserRequest, service: UserService = Depends(get_user_service)
+            body: CreateUserRequest,
+            service: UserService = Depends(get_user_service),
+            response: Response = Response(),
         ) -> CreateUserResponse:
-            return await service.create()
+            result = await service.create(body)
+
+            handle_service_result(result, response)
+
+            return result
 
     def get_router(self) -> APIRouter:
         return self._router
