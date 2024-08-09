@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
-from app.modules.user.domain.repository import BaseUserRepository
 
 
 class GenericTransaction(ABC):
-
-    user: BaseUserRepository
 
     async def __aenter__(self):
         return self

@@ -18,6 +18,9 @@ from app.modules.user.application.response.update import UpdateUserResponse
 # Entities
 from app.modules.user.domain.entity import User
 
+# Repositories
+from app.modules.user.infrastructure.repository import UserRepository
+
 
 class UserService:
     __mapper = UserMapper()
@@ -40,7 +43,7 @@ class UserService:
         )
 
         try:
-            async with self._transaction() as t:
+            async with self._transaction(user=UserRepository) as t:
                 u = await t.user.add(self.__mapper.to_model(user))
         except Exception as e:
             return CreateUserResponse(
@@ -55,7 +58,7 @@ class UserService:
         )
 
     async def get_one(self, id: str) -> GetOneUserResponse:
-        async with self._transaction() as t:
+        async with self._transaction(user=UserRepository) as t:
             user = await t.user.get(id)
 
         if not user:
@@ -71,7 +74,7 @@ class UserService:
         )
 
     async def get_one_by_dni(self, dni: str) -> GetOneUserResponse:
-        async with self._transaction() as t:
+        async with self._transaction(user=UserRepository) as t:
             user = await t.user.get_by_dni(dni)
 
         if not user:
@@ -89,7 +92,7 @@ class UserService:
     async def get_many(self, **filters) -> GetManyUsersResponse:
         users = []
 
-        async with self._transaction() as t:
+        async with self._transaction(user=UserRepository) as t:
             query = await t.user.list(**filters)
 
         if len(query) > 0:
@@ -100,7 +103,7 @@ class UserService:
         )
 
     async def update(self, dni: str, dto: CreateUserRequest) -> User:
-        async with self._transaction() as t:
+        async with self._transaction(user=UserRepository) as t:
             user = await t.user.get(dni)
 
             if not user:
