@@ -3,7 +3,11 @@ import sys
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# Routers
+from app.modules.client.infrastructure.router import ClientRouter
 from app.modules.user.infrastructure.router import UserRouter
+
+# Utils
 from app.utils.add_routers import add_routers
 
 if sys.platform == "win32":
@@ -11,7 +15,7 @@ if sys.platform == "win32":
 
 # API
 app = FastAPI()
-routers = [UserRouter()]
+routers = [UserRouter(), ClientRouter()]
 
 origins = [
     "http://localhost:3000",
