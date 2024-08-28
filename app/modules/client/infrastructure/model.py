@@ -15,4 +15,6 @@ class ClientModel(Base):
     user_id: Mapped[str] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
 
     # Relationships
-    user: Mapped["UserModel"] = relationship("UserModel", backref="client", single_parent=True, lazy='joined')
+    user: Mapped["UserModel"] = relationship(
+        "UserModel", backref="client", single_parent=True, lazy="joined"
+    )

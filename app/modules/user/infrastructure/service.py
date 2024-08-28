@@ -32,6 +32,22 @@ class UserService:
 
     # Use cases
     async def create(self, dto: CreateUserRequest) -> CreateUserResponse:
+        try:
+            async with self._transaction(user=UserRepository) as t:
+                user_exists = await t.user.get_by_dni(dto.dni)
+        except Exception:
+            return CreateUserResponse(
+                status_code=500, success=False, message="Unexpected error", content=None
+            )
+
+        if user_exists:
+            return CreateUserResponse(
+                status_code=409,
+                success=False,
+                message=f"User by dni {dto.dni} already exists",
+                content=None,
+            )
+
         user = User(
             id=ID.generate(),
             dni=dto.dni,
@@ -45,9 +61,9 @@ class UserService:
         try:
             async with self._transaction(user=UserRepository) as t:
                 u = await t.user.add(self.__mapper.to_model(user))
-        except Exception as e:
+        except Exception:
             return CreateUserResponse(
-                status_code=500, success=False, message=str(e), content=None
+                status_code=500, success=False, message="Unexpected error", content=None
             )
 
         return CreateUserResponse(
@@ -89,11 +105,13 @@ class UserService:
             content=self.__mapper.to_entity(user),
         )
 
-    async def get_many(self, **filters) -> GetManyUsersResponse:
+    async def get_many(
+        self, offset: int, limit: int, **filters
+    ) -> GetManyUsersResponse:
         users = []
 
         async with self._transaction(user=UserRepository) as t:
-            query = await t.user.list(**filters)
+            query = await t.user.list(offset, limit, **filters)
 
         if len(query) > 0:
             users = [self.__mapper.to_entity(user) for user in query]

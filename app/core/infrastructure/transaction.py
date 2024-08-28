@@ -10,7 +10,7 @@ class Transaction(GenericTransaction):
 
     async def __aenter__(self):
         self._session = self._session_factory()
-        
+
         for name, repository in self._repositories.items():
             setattr(self, name, repository(self._session))
 

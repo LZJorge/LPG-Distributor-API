@@ -1,4 +1,3 @@
-from typing import Optional
 from pydantic import field_validator
 from app.core.application.request.base_request import Request
 from app.modules.user.domain.exceptions.invalid_dni import InvalidDNIException
@@ -6,7 +5,7 @@ from app.modules.user.domain.value_objects.dni import DNI
 
 
 class CreateClientParams(Request):
-    user_dni: Optional[str] = None
+    user_dni: str
 
     @field_validator("user_dni", mode="before")
     @classmethod

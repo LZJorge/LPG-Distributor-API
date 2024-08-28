@@ -19,7 +19,7 @@ class GenericSQLRepository(GenericRepository[T]):
     def _construct_get_stmt(self, id_: str):
         return select(self._model_cls).where(self._model_cls.id == id_)
 
-    def _construct_list_stmt(self, **filters):
+    def _construct_list_stmt(self, offset: int, limit: int, **filters):
         stmt = select(self._model_cls)
         where_clauses = []
 
@@ -27,10 +27,12 @@ class GenericSQLRepository(GenericRepository[T]):
             if not hasattr(self._model_cls, column):
                 raise ValueError(f"Invalid column name {column}")
 
-            where_clauses.append(getattr(self._model_cls, column).ilike(f"%{value}%"))
+            where_clauses.append(getattr(self._model_cls, column) == value)
 
         if len(where_clauses) > 0:
             stmt = stmt.where(*where_clauses)
+
+        stmt = stmt.limit(limit).offset(offset)
 
         return stmt
 
@@ -45,8 +47,8 @@ class GenericSQLRepository(GenericRepository[T]):
         r = await self._session.execute(stmt)
         return r.scalars().first()
 
-    async def list(self, **filters) -> list[T]:
-        stmt = self._construct_list_stmt(**filters)
+    async def list(self, offset: int, limit: int, **filters) -> list[T]:
+        stmt = self._construct_list_stmt(offset, limit, **filters)
         r = await self._session.execute(stmt)
         return r.scalars().all()
 

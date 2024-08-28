@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import Depends, APIRouter, Response
+from fastapi import Depends, APIRouter, Query, Response
 from app.core.infrastructure.router import BaseRouter
 
 # Requests
@@ -28,7 +28,9 @@ class UserRouter(BaseRouter):
     def _register_routes(self) -> None:
 
         @self._router.get("/", response_model=GetManyUsersResponse, status_code=200)
-        async def get_all(
+        async def get_many(
+            offset: int = 0,
+            limit: int = Query(default=100, le=100),
             params: ListUsersParams = Depends(),
             service: UserService = Depends(get_user_service),
             response: Response = Response(),
@@ -37,19 +39,19 @@ class UserRouter(BaseRouter):
                 key: value for key, value in params if value is not None
             }
 
-            result = await service.get_many(**query_params)
+            result = await service.get_many(offset, limit, **query_params)
 
             handle_service_result(result, response)
 
             return result
 
-        @self._router.get("/{id_}", response_model=GetOneUserResponse, status_code=200)
+        @self._router.get("/{_id}", response_model=GetOneUserResponse, status_code=200)
         async def get_by_id(
-            id_: UUID,
+            _id: UUID,
             service: UserService = Depends(get_user_service),
             response: Response = Response(),
         ) -> GetOneUserResponse:
-            result = await service.get_one(id_)
+            result = await service.get_one(_id)
 
             handle_service_result(result, response)
 
@@ -69,14 +71,14 @@ class UserRouter(BaseRouter):
 
             return result
 
-        @self._router.put("/{id_}", response_model=UpdateUserResponse, status_code=200)
+        @self._router.put("/{_id}", response_model=UpdateUserResponse, status_code=200)
         async def update(
-            id_: UUID,
+            _id: UUID,
             body: CreateUserRequest,
             service: UserService = Depends(get_user_service),
             response: Response = Response(),
         ) -> UpdateUserResponse:
-            result = await service.update(id_, body)
+            result = await service.update(_id, body)
 
             handle_service_result(result, response)
 

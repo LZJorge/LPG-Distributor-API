@@ -12,10 +12,10 @@ class ClientRepository(GenericSQLRepository[Client], BaseClientRepository):
         super().__init__(session, ClientModel)
 
     async def get_by_dni(self, dni: str) -> Client:
-        stmt = select(self._model_cls).where(self._model_cls.user.dni == dni)
+        stmt = select(self._model_cls).join(self._model_cls.user).filter_by(dni=dni)
         r = await self._session.execute(stmt)
         return r.scalars().first()
-    
+
     async def get_by_user_id(self, user_id: str) -> Client:
         stmt = select(self._model_cls).where(self._model_cls.user_id == user_id)
         r = await self._session.execute(stmt)
