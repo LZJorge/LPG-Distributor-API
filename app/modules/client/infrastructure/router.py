@@ -112,6 +112,3 @@ class ClientRouter(BaseRouter):
             handle_service_result(result, response)
 
             return result
-
-    def get_router(self) -> APIRouter:
-        return self._router

@@ -14,6 +14,7 @@ from app.config.database import Base
 ## Models
 from app.modules.user.infrastructure.model import UserModel
 from app.modules.client.infrastructure.model import ClientModel
+from app.modules.tank.infrastructure.model import TankModel, TankTypeModel
 
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

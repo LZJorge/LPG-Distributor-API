@@ -22,6 +22,9 @@ class Transaction(GenericTransaction):
     async def rollback(self):
         await self._session.rollback()
 
+    async def close(self):
+        await self._session.close()
+
 
 def get_transaction() -> GenericTransaction:
     return Transaction

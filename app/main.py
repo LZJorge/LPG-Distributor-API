@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Routers
 from app.modules.client.infrastructure.router import ClientRouter
+from app.modules.tank.infrastructure.router import TankRouter
 from app.modules.user.infrastructure.router import UserRouter
 
 # Utils
@@ -15,7 +16,7 @@ if sys.platform == "win32":
 
 # API
 app = FastAPI()
-routers = [UserRouter(), ClientRouter()]
+routers = [UserRouter(), ClientRouter(), TankRouter()]
 
 origins = [
     "http://localhost:3000",

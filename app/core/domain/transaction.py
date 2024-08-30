@@ -12,10 +12,16 @@ class GenericTransaction(ABC):
         else:
             await self.rollback()
 
+        await self.close()
+
     @abstractmethod
     async def commit(self):
         raise NotImplementedError
 
     @abstractmethod
     async def rollback(self):
+        raise NotImplementedError
+
+    @abstractmethod
+    def close(self):
         raise NotImplementedError

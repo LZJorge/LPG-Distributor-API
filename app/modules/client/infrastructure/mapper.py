@@ -5,7 +5,7 @@ from app.modules.user.domain.entity import User
 
 
 class ClientMapper(GenericMapper[Client, ClientModel]):
-    def to_entity(cls, model: ClientModel) -> Client:
+    def to_entity(self, model: ClientModel) -> Client:
         return Client(
             id=model.id,
             total_orders=model.total_orders,
@@ -13,7 +13,7 @@ class ClientMapper(GenericMapper[Client, ClientModel]):
             user_id=model.user_id,
         )
 
-    def to_model(cls, entity: Client) -> ClientModel:
+    def to_model(self, entity: Client) -> ClientModel:
         return ClientModel(
             id=entity.id,
             total_orders=entity.total_orders,
@@ -21,7 +21,7 @@ class ClientMapper(GenericMapper[Client, ClientModel]):
             user_id=entity.user_id,
         )
 
-    def to_entity_with_user(cls, model: ClientModel) -> Client:
+    def to_entity_with_user(self, model: ClientModel) -> Client:
         return Client(
             id=model.id,
             total_orders=model.total_orders,

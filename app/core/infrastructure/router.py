@@ -15,6 +15,5 @@ class BaseRouter(ABC):
     def _register_routes(self) -> None:
         raise NotImplementedError
 
-    @abstractmethod
     def get_router(self) -> APIRouter:
-        raise NotImplementedError
+        return self._router
